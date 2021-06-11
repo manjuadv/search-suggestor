@@ -3,17 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31313.79
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data_Processor", "Data_Processor\Data_Processor.csproj", "{5101F391-6F1B-49AF-B334-B5DB9D0F7E1F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Data_Processor", "Data_Processor\Data_Processor.csproj", "{5101F391-6F1B-49AF-B334-B5DB9D0F7E1F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartApart.Core", "SmartApart.Core\SmartApart.Core.csproj", "{76A6D2AC-A69A-43A7-AC08-5149C6D49372}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartApart.Core", "SmartApart.Core\SmartApart.Core.csproj", "{76A6D2AC-A69A-43A7-AC08-5149C6D49372}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartApart.Utils", "SmartApart.Utils\SmartApart.Utils.csproj", "{CFF3737D-E821-4C00-BB5D-518186D46D0B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartApart.Utils", "SmartApart.Utils\SmartApart.Utils.csproj", "{CFF3737D-E821-4C00-BB5D-518186D46D0B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DataFiles", "DataFiles", "{88D296CE-83C1-4A60-8755-6F7C728D0804}"
 	ProjectSection(SolutionItems) = preProject
 		DataFiles\mgmt.json = DataFiles\mgmt.json
 		DataFiles\properties.json = DataFiles\properties.json
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ElasticsearchConnector", "ElasticsearchConnector\ElasticsearchConnector.csproj", "{2289BE6B-88A9-4F18-AA5D-B0F74ECAF01C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{CFF3737D-E821-4C00-BB5D-518186D46D0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CFF3737D-E821-4C00-BB5D-518186D46D0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CFF3737D-E821-4C00-BB5D-518186D46D0B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2289BE6B-88A9-4F18-AA5D-B0F74ECAF01C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2289BE6B-88A9-4F18-AA5D-B0F74ECAF01C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2289BE6B-88A9-4F18-AA5D-B0F74ECAF01C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2289BE6B-88A9-4F18-AA5D-B0F74ECAF01C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
