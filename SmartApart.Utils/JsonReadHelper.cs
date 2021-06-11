@@ -1,4 +1,4 @@
-﻿using SmartApart.Core;
+﻿using SmartApart.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -44,44 +44,45 @@ namespace SmartApart.Utils
             }
             return objStringList;
         }
-        public static List<PropertyItem> GetPropertyModelByJsonStrings(List<string> jsonStringList, string sourceFileName)
+        public static List<PropertyItem> GetPropertyModelByJsonStrings(List<string> jsonStringList, string sourceFileName, bool allowDuplicateUpload=false)
         {
             List<PropertyItem> objectList = new List<PropertyItem>();
             Dictionary<long, int> uploaedPropertyIDs = GetUploadedPropertyIDs(sourceFileName);
             for (int i = 0; i < jsonStringList.Count; i++)
             {
                 string jsonString = jsonStringList[i];
+                PropertyItem propertyItem = null;
                 try
                 {
-                    PropertyItem propertyItem = Newtonsoft.Json.JsonConvert.DeserializeObject<PropertyItem>(jsonString);
-                    if (uploaedPropertyIDs.Keys.Contains(i))
-                    {
-                        //objectList.Add(propertyItem);
-                        //uploaedPropertyIDs[propertyItem.PropertyID] = uploaedPropertyIDs[propertyItem.PropertyID] + 1;
-                        //SaveUploadedPropertyID(propertyItem.PropertyID);
-                    }
-                    else
-                    {
-                        objectList.Add(propertyItem);
-                        uploaedPropertyIDs.Add(i, 1);
-                        SaveUploadedPropertyID(sourceFileName, i);
-                    }
+                    propertyItem = Newtonsoft.Json.JsonConvert.DeserializeObject<PropertyItem>(jsonString);
                 }
                 catch (Exception ex)
                 {
-                    PropertyItem propertyItem = GetPropertyItemByJsonString(jsonString);
-                    if (uploaedPropertyIDs.Keys.Contains(i))
+                    propertyItem = GetPropertyItemByJsonString(jsonString);
+                }
+
+                if (propertyItem == null)
+                {
+                    Console.WriteLine(string.Format("Error happened while reading record {0}",i));
+                    continue;
+                }
+
+                if (uploaedPropertyIDs.Keys.Contains(i))
+                {
+                    if (allowDuplicateUpload)
                     {
-                        //objectList.Add(propertyItem);
-                        //uploaedPropertyIDs[propertyItem.PropertyID] = uploaedPropertyIDs[propertyItem.PropertyID] + 1;
-                        //SaveUploadedPropertyID(propertyItem.PropertyID);
+                        objectList.Add(propertyItem);
                     }
                     else
                     {
-                        objectList.Add(propertyItem);
-                        uploaedPropertyIDs.Add(i, 1);
-                        SaveUploadedPropertyID(sourceFileName, i);
+                        Console.WriteLine(string.Format("Record {0} already uploaded", i));
                     }
+                }
+                else
+                {
+                    objectList.Add(propertyItem);
+                    uploaedPropertyIDs.Add(i, 1);
+                    SaveUploadedPropertyID(sourceFileName, i);
                 }
             }
             return objectList;

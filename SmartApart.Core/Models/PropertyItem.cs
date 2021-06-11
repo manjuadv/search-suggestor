@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SmartApart.Core
+namespace SmartApart.Core.Models
 {
     public class PropertyItem
     {
