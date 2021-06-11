@@ -1,4 +1,7 @@
-﻿using System;
+﻿using SmartApart.Core;
+using SmartApart.Utils;
+using System;
+using System.Collections.Generic;
 
 namespace Data_Processor
 {
@@ -6,7 +9,11 @@ namespace Data_Processor
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("This is changed, in new branch!");
+            string sourceFileName = "properties.json";
+            string filePath = @"..\..\..\..\DataFiles\";
+
+            List<string> objectStrings = JsonReadHelper.GetObjectString(filePath + sourceFileName);
+            List<PropertyItem> propertyList = JsonReadHelper.GetPropertyModelByJsonStrings(objectStrings, sourceFileName);
         }
     }
 }
