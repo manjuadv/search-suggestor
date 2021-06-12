@@ -1,4 +1,5 @@
-﻿using ElasticsearchConnector.Connectors.Aws;
+﻿using Elasticsearch.Net;
+using ElasticsearchConnector.Connectors.Aws;
 using Nest;
 using Newtonsoft.Json;
 using SmartApart.Core.Models;
@@ -19,21 +20,30 @@ namespace Data_Processor
             List<string> objectStrings = JsonReadHelper.GetObjectString(filePath + sourceFileName);
             List<PropertyItem> propertyList = JsonReadHelper.GetPropertyModelByJsonStrings(objectStrings, sourceFileName, allowDuplicateUpload: true);
 
-            ConnectionSettings settings = new ConnectionSettings(new Uri("http://localhost:9200/"));
+
+            //BasicAuthenticationCredentials auth = new BasicAuthenticationCredentials("propuser", "data@1User");
+
+            Uri url = new Uri("https://propuser:data$1User@search-properties-fy3tslyamx44nmky4ezpycpaea.ap-south-1.es.amazonaws.com");
+            ConnectionSettings settings = new ConnectionSettings(url);
             IElasticClient elasticClient = new ElasticClient(settings);
-            string indexName = "property4";
+            
+           
+            string indexName = "property1";
 
             //CreateIndexAutoMap(elasticClient, indexName);
 
             //IndexPropertyItem(elasticClient, indexName, propertyList[0]);
-            SearchMatchPrase(elasticClient, indexName, "Abilene");
+            //SearchMatchPrase(elasticClient, indexName, "Abilene");
             //SearchTerm(elasticClient, indexName, "Abilene");
             //SearchMatchPrase(elasticClient, indexName, "Cur"); // No match
-            SearchMatchPrefixPhase(elasticClient, indexName, "cro");
+
+
             //SearchMatchPrefixPhase(elasticClient, indexName, "Ranc");
 
             //IndexPropertyItemBulkAll(elasticClient, indexName, propertyList, 10);
 
+            //SearchMatchPrefixPhase(elasticClient, indexName, "Stone R", 100, null);//"Atlanta");
+            SearchMatchPrefixPhase(elasticClient, indexName, "Stone vi", 100, null);//"Atlanta");
 
         }
         private static void CreateIndexAutoMap(IElasticClient elasticClient, string indexName)
@@ -90,37 +100,42 @@ namespace Data_Processor
 
         private static void SearchMatchPrase(IElasticClient elasticClient, string indexName, string key)
         {
-            var results = elasticClient.Search<PropertyItem>(s => s
+            /*var results = elasticClient.Search<PropertyItem>(s => s
             .Index(indexName)
-            .Query(q => q.Match(m => m.Field(f => f.Name).Query(key)))) ;
+            .Query(q => q.Match(m => m.Field(f => f.Name).Query(key)))) ;*/
 
-            foreach (var result in results?.Documents)
+            AwsElasticsearchSearchConnector searchConnector = new AwsElasticsearchSearchConnector(elasticClient);
+            IEnumerable<PropertyItem> results = searchConnector.SearchByName(indexName, key);
+            foreach (var result in results)
             {
                 Console.WriteLine(JsonConvert.SerializeObject(result));
             }
         }
         private static void SearchTerm(IElasticClient elasticClient, string indexName, string key)
         {
-            // TODO:Apply analyzer to make lower
-            key = key.ToLower();
+            /*key = key.ToLower();
 
 
             var results = elasticClient.Search<PropertyItem>(s => s
             .Index(indexName)
-            .Query(q => q.Term(t => t.Field(f => f.Market).Value(key))));
+            .Query(q => q.Term(t => t.Field(f => f.Market).Value(key))));*/
+            AwsElasticsearchSearchConnector searchConnector = new AwsElasticsearchSearchConnector(elasticClient);
+            IEnumerable<PropertyItem> results = searchConnector.FilterByName(indexName, key);
 
-            foreach (var result in results?.Documents)
+            foreach (var result in results)
             {
                 Console.WriteLine(JsonConvert.SerializeObject(result));
             }
         }
-        private static void SearchMatchPrefixPhase(IElasticClient elasticClient, string indexName, string key)
+        private static void SearchMatchPrefixPhase(IElasticClient elasticClient, string indexName, string key, int size, string market)
         {
-            var results = elasticClient.Search<PropertyItem>(s => s
+            /*var results = elasticClient.Search<PropertyItem>(s => s
             .Index(indexName)
-            .Query(q => q.MatchPhrasePrefix(m => m.Field(f => f.Name).Query(key))));
+            .Query(q => q.MatchPhrasePrefix(m => m.Field(f => f.Name).Query(key))));*/
+            AwsElasticsearchSearchConnector searchConnector = new AwsElasticsearchSearchConnector(elasticClient);
+            IEnumerable<PropertyItem> results = searchConnector.AutoCompleteSearchSimple(indexName, key, size: size, market:market);
 
-            foreach (var result in results?.Documents)
+            foreach (var result in results)
             {
                 Console.WriteLine(JsonConvert.SerializeObject(result));
             }

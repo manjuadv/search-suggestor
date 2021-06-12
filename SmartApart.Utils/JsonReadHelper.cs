@@ -39,7 +39,7 @@ namespace SmartApart.Utils
                     objStringList.Add(objString.Replace(Environment.NewLine, string.Empty));
                 }
                 startIndex = closeBracketIndex + 1;
-                if (objStringList.Count > 45)
+                if (objStringList.Count > 499)
                     break;
             }
             return objStringList;
