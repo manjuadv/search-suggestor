@@ -21,16 +21,20 @@ namespace Data_Processor
             List<PropertyItem> propertyList = JsonReadHelper.GetPropertyModelByJsonStrings(objectStrings, sourceFileName, allowDuplicateUpload: true);
 
 
-            Uri url = new Uri("https://propuser:data$1User@search-properties-fy3tslyamx44nmky4ezpycpaea.ap-south-1.es.amazonaws.com");
+            //Uri url = new Uri("https://propuser:data$1User@search-properties-fy3tslyamx44nmky4ezpycpaea.ap-south-1.es.amazonaws.com");
+            Uri url = new Uri("http://localhost:9200/");
             ConnectionSettings settings = new ConnectionSettings(url);
+            settings.EnableDebugMode();
             IElasticClient elasticClient = new ElasticClient(settings);
             
            
-            string indexName = "property1";
+            string indexName = "property10";
 
             //CreateIndexAutoMap(elasticClient, indexName);
 
-            //IndexPropertyItem(elasticClient, indexName, propertyList[0]);
+            CreateIndexSearchSuggestion(elasticClient, indexName);
+
+            IndexPropertyItem(elasticClient, indexName, propertyList[0]);
             //SearchMatchPrase(elasticClient, indexName, "Abilene");
             //SearchTerm(elasticClient, indexName, "Abilene");
             //SearchMatchPrase(elasticClient, indexName, "Cur"); // No match
@@ -40,13 +44,18 @@ namespace Data_Processor
 
             //IndexPropertyItemBulkAll(elasticClient, indexName, propertyList, 10);
 
-            SearchMatchPrefixPhase(elasticClient, indexName, "Stone R", 100, null);//"Atlanta");
+            //SearchMatchPrefixPhase(elasticClient, indexName, "Stone R", 100, null);//"Atlanta");
             //SearchMatchPrefixPhase(elasticClient, indexName, "Stone vi", 100, null);//"Atlanta");
         }
         private static void CreateIndexAutoMap(IElasticClient elasticClient, string indexName)
         {
             AwsElasticsearchSetupConnector setupConnector = new AwsElasticsearchSetupConnector(elasticClient);
-            setupConnector.CreateIndex(indexName);
+            setupConnector.CreateIndexAutoMap(indexName);
+        }
+        private static void CreateIndexSearchSuggestion(IElasticClient elasticClient, string indexName)
+        {
+            AwsElasticsearchSetupConnector setupConnector = new AwsElasticsearchSetupConnector(elasticClient);
+            setupConnector.CreateSearchSuggetionIndex(indexName);
         }
         private static void IndexPropertyItem(IElasticClient elasticClient, string indexName, PropertyItem proerpty)
         {

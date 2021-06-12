@@ -17,7 +17,32 @@ namespace ElasticsearchConnector.Connectors.Aws
         {
             this.elasticClient = elasticClient;
         }
-        public void CreateIndex(string indexName)
+        public void CreateSearchSuggetionIndex(string indexName)
+        {
+            Func<CreateIndexDescriptor, ICreateIndexRequest> createIndexReqeust = i => i
+            .Settings(st=>st
+            .Analysis(an=>an
+                .TokenFilters(tf=>tf.EdgeNGram("edge_ng_filter", eg=>eg.MinGram(1).MaxGram(20)))
+                .Analyzers(an=>an.Custom("autocomp_cust_no_stop", c=>c.Tokenizer("standard").Filters("lowercase", "edge_ng_filter", "stop")))                
+            )).Map<PropertyItem>(mm => mm
+        //.AutoMap()
+        .Properties(p => p
+            .Text(t => t
+                .Name(n => n.Name)
+                .Analyzer("autocomp_cust_no_stop")
+            )
+            .Text(t => t
+                .Name(n => n.FormerName)
+                .Analyzer("autocomp_cust_no_stop")
+            )
+
+            ));
+
+
+            var createIndexResponse = elasticClient.Indices.Create(indexName, createIndexReqeust);
+        }
+        
+        public void CreateIndexAutoMap(string indexName)
         {
             var createIndexResponse = elasticClient.Indices.CreateAsync(indexName, c => c
            .Map<PropertyItem>(m => m.AutoMap()));
