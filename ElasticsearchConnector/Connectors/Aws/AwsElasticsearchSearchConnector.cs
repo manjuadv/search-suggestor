@@ -33,19 +33,6 @@ namespace ElasticsearchConnector.Connectors.Aws
                 var results = elasticClient.Search<PropertyItem>(s => s
                 .Index(indexName)
                 .Size(size)
-                //.Query(q => q.MatchPhrasePrefix(m => m.Field(f => f.Name).Query(text))));
-                //.Query(q => q.MultiMatch(m => m.Fields(f => f.Fields("name", "formerName", "city")).Query(text))));
-                /*.Query(q => q.Bool(b => b
-                   .Must(mu => mu
-                               .MultiMatch(m => m
-                                       .Fields(f => f.Field("Name").Field("FormerName").Field("City"))
-                                 .Query(text)
-                                  ) && q
-                                .MultiMatch(m => m
-                            .Fields(f => f.Field("Name").Field("FormerName").Field("City"))
-                                   .Query("Califronia")
-                                )))));*/
-                //.Query(q => q.MultiMatch(mm => mm.Query(text))));
                 .Query(q => q
                 .DisMax(dm => dm
                     .Queries(dq => dq.MatchPhrasePrefix(m => m.Field("name").Query(text))
@@ -62,7 +49,6 @@ namespace ElasticsearchConnector.Connectors.Aws
             {
                 var results = elasticClient.Search<PropertyItem>(s => s
                .Index(indexName)
-               //.Analyzer("standard")
                .Size(size)
                .Query(q => q
                .DisMax(dm => dm
