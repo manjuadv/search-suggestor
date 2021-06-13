@@ -24,9 +24,11 @@ namespace ElasticsearchConnector.Services
             this.indexNameProperty = indexNameProperty;
             this.indexNameMgmtCompany = indexNameMgmtCompany;
         }
-        public IEnumerable<SearchSuggestionResult> GetAutocompleteSuggestions(string text, string[] markets = null)
+        public IEnumerable<SearchSuggestionResult> GetAutocompleteSuggestions(string text, string[] markets = null, 
+            int size = 25, int misspellingMaxAllowed=2)
         {         
-            ISearchResponse<PropertyItem> searchResponse = GetSearchResults(text, size: 100, market: markets, misspellingMaxAllowed: 0);
+            ISearchResponse<SearchEntity> searchResponse = GetSearchResults(text, size: size, market: markets, 
+                misspellingMaxAllowed: misspellingMaxAllowed);
             if (searchResponse == null)
             {
                 throw new Exception("Null response received");
@@ -34,27 +36,30 @@ namespace ElasticsearchConnector.Services
             else
             {
                 List<SearchSuggestionResult> resultsList = new List<SearchSuggestionResult>();
-
+                string sourceType = "";
                 foreach (var hit in searchResponse.Hits)
                 {
                     if (hit.Index == indexNameProperty)
                     {
-                        resultsList.Add(new SearchSuggestionResult { EntityID = hit.Source.PropertyID, Suggestion = hit.Source.Name, SourceType = "property", Rank = hit.Score });
+                        sourceType = "property";                        
                     }
                     else if (hit.Index == indexNameMgmtCompany)
                     {
-                        resultsList.Add(new SearchSuggestionResult { EntityID = hit.Source.PropertyID, Suggestion = hit.Source.Name, SourceType = "mgmtComp", Rank = hit.Score });
+                        sourceType = "mgmtComp";
+                        
                     }
+                    resultsList.Add(new SearchSuggestionResult { EntityID = hit.Source.PropertyID, Suggestion = hit.Source.Name, 
+                        SourceType = sourceType, Rank = hit.Score, FormerName = hit.Source.FormerName, Source=hit.Source });
                 }
                 return resultsList;
             }
         }
-        private ISearchResponse<PropertyItem> GetSearchResults(string text, int misspellingMaxAllowed = 0, 
+        private ISearchResponse<SearchEntity> GetSearchResults(string text, int misspellingMaxAllowed = 0, 
             string[] market = null, int size = 10)
         {
             if (market == null)
             {
-                var searchResult = elasticClient.Search<PropertyItem>(s => s
+                var searchResult = elasticClient.Search<SearchEntity>(s => s
                     .Index(new string[] { indexNameProperty, indexNameMgmtCompany })
                     .Size(size)
                     .Query(q => q
@@ -114,7 +119,7 @@ namespace ElasticsearchConnector.Services
                 List<string> marketList = new List<string>();
                 foreach (string v in market) marketList.Add(v.ToLower());
 
-                var searchResult = elasticClient.Search<PropertyItem>(s => s
+                var searchResult = elasticClient.Search<SearchEntity>(s => s
                     .Index(new string[] { indexNameProperty, indexNameMgmtCompany })
                     .Size(size)
                     .Query(q => q

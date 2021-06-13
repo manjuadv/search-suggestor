@@ -30,9 +30,13 @@ namespace SearchApi.Controllers
         /// <param name="market"></param>
         /// <returns></returns>
         [HttpGet]
-        public IEnumerable<string> Get(string text, [FromQuery] string[] market, int limit= 25)
+        public IEnumerable<SearchSuggestionResult> Get(string text, [FromQuery] string[] market, int limit = 25)
         {
-            return new string[] { "value1", "value2" };
+            if (market != null && market.Length < 1)
+                market = null;
+            if (limit < 1)
+                limit = 25;
+            return GetSearchResults(text, market, limit);
         }
 
         /// <summary>
@@ -41,12 +45,17 @@ namespace SearchApi.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("markets/{market}")]
-        public string Get(string text, string market="", int limit=25)
+        public IEnumerable<SearchSuggestionResult> Get(string text, string market="", int limit=25)
         {
             string[] markests = new string[] { market };
             if (string.IsNullOrEmpty(market))
                 markests = null;
-
+            if (limit < 1)
+                limit = 25;
+            return GetSearchResults(text, markests, limit);
+        }
+        private IEnumerable<SearchSuggestionResult> GetSearchResults(string text, string[] markets, int limit)
+        {
             string indexProperty = "property5";
             string indexMgmt = "mgmt4";
             Uri url = new Uri("http://localhost:9200/");
@@ -54,8 +63,8 @@ namespace SearchApi.Controllers
             settings.EnableDebugMode();
             IElasticClient elasticClient = new ElasticClient(settings);
             ISearchService searchService = new ElasticsearchService(elasticClient, indexProperty, indexMgmt);
-            IEnumerable<SearchSuggestionResult> results = searchService.GetAutocompleteSuggestions(text, markests);
-            return "value";
+            IEnumerable<SearchSuggestionResult> results = searchService.GetAutocompleteSuggestions(text, markets, size: limit, misspellingMaxAllowed: 1);
+            return results;
         }
     }
 }

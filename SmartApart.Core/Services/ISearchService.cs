@@ -9,6 +9,7 @@ namespace SmartApart.Core.Services
 {
     public interface ISearchService
     {
-        IEnumerable<SearchSuggestionResult> GetAutocompleteSuggestions(string text, string[] markets = null);
+        IEnumerable<SearchSuggestionResult> GetAutocompleteSuggestions(string text, string[] markets = null, int size = 25, 
+            int misspellingMaxAllowed = 2);
     }
 }

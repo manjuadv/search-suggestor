@@ -75,8 +75,8 @@ namespace Data_Processor
             //setupCon.IndexRecord(mgmtCompList[0], indexName);
             //setupCon.IndexRecordsBulkAll(mgmtCompList, indexName, 50);
 
-            IMgmtCompSearchConnector srchCon = new MgmtCompSearchConnector(elasticClient);
-            srchCon.AutoCompleteSearchByCustomAnalyzer(indexName, "Avan", market: null, size: 100);
+            /*IMgmtCompSearchConnector srchCon = new MgmtCompSearchConnector(elasticClient);
+            srchCon.AutoCompleteSearchByCustomAnalyzer(indexName, "Avan", market: null, size: 100);*/
 
         }
         private static void CreateIndexSearchSuggestion(IElasticClient elasticClient, string indexName)
@@ -101,7 +101,7 @@ namespace Data_Processor
         }
         private static void SearchMatchPrefixPhase(IElasticClient elasticClient, string indexName, string key, int size, string[] market)
         {
-            IPropertySearchConnector searchConnector = new PropertySearchConnector(elasticClient);
+            /*IPropertySearchConnector searchConnector = new PropertySearchConnector(elasticClient);
             //IEnumerable<PropertyItem> results = searchConnector.AutoCompleteSearchSimple(indexName, key, size: size, market:market);
 
             //IEnumerable<PropertyItem> results = searchConnector.AutoCompleteNameByCustomAnalyzer(indexName, key, size: size, market: market);
@@ -110,7 +110,7 @@ namespace Data_Processor
             foreach (var result in results)
             {
                 Console.WriteLine(JsonConvert.SerializeObject(result));
-            }
+            }*/
         }
     }
 }
