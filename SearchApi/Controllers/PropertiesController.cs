@@ -1,5 +1,6 @@
 ﻿using ElasticsearchConnector.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Nest;
 using SmartApart.Core.Models;
@@ -18,10 +19,17 @@ namespace SearchApi.Controllers
     public class PropertiesController : ControllerBase
     {
         private readonly ILogger<PropertiesController> _logger;
+        private readonly IElasticClient elasticClient;
+        private readonly IConfiguration configuration;
+        private readonly ISearchService searchService;
 
-        public PropertiesController(ILogger<PropertiesController> logger)
+        public PropertiesController(ILogger<PropertiesController> logger, IElasticClient elasticClient, 
+            IConfiguration configuration, ISearchService searchService)
         {
             _logger = logger;
+            this.elasticClient = elasticClient;
+            this.configuration = configuration;
+            this.searchService = searchService;
         }
         /// <summary>
         /// Search within several markets (optional). eg : /properties?text=keyword&market=Market1&market=Market2
@@ -56,13 +64,13 @@ namespace SearchApi.Controllers
         }
         private IEnumerable<SearchSuggestionResult> GetSearchResults(string text, string[] markets, int limit)
         {
-            string indexProperty = "property5";
-            string indexMgmt = "mgmt4";
-            Uri url = new Uri("http://localhost:9200/");
+            //string indexProperty = "property5";
+            //string indexMgmt = "mgmt4";
+            /*Uri url = new Uri("http://localhost:9200/");
             ConnectionSettings settings = new ConnectionSettings(url);
             settings.EnableDebugMode();
-            IElasticClient elasticClient = new ElasticClient(settings);
-            ISearchService searchService = new ElasticsearchService(elasticClient, indexProperty, indexMgmt);
+            IElasticClient elasticClient = new ElasticClient(settings);*/
+            //ISearchService searchService = new ElasticsearchService(elasticClient);
             IEnumerable<SearchSuggestionResult> results = searchService.GetAutocompleteSuggestions(text, markets, size: limit, misspellingMaxAllowed: 1);
             return results;
         }

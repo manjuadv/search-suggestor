@@ -1,3 +1,4 @@
+using ElasticsearchConnector.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -7,6 +8,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using Nest;
+using SmartApart.Core.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,6 +35,11 @@ namespace SearchApi
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "SearchApi", Version = "v1" });
             });
+
+            var settings = new ConnectionSettings(new Uri(Configuration["ElasticsearchSettings:uri"]));
+            var client = new ElasticClient(settings);
+            services.AddSingleton<IElasticClient>(client);
+            services.AddScoped<ISearchService, ElasticsearchService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

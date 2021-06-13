@@ -1,6 +1,7 @@
 ﻿using ElasticsearchConnector.Connectors;
 using ElasticsearchConnector.Connectors.ManagementCompany;
 using ElasticsearchConnector.Connectors.Property;
+using Microsoft.Extensions.Configuration;
 using Nest;
 using SmartApart.Core.Models;
 using SmartApart.Core.Services;
@@ -15,14 +16,36 @@ namespace ElasticsearchConnector.Services
     public class ElasticsearchService : ISearchService
     {
         private readonly IElasticClient elasticClient;
-        private readonly string indexNameProperty;
-        private readonly string indexNameMgmtCompany;
+        private readonly IConfiguration configuration;
+        private string indexNameProperty;
+        private string indexNameMgmtCompany;
+        private string indexPropertySearch;
+        private string indexMgmtCompanySearch;
 
-        public ElasticsearchService(IElasticClient elasticClient, string indexNameProperty, string indexNameMgmtCompany)
+        public ElasticsearchService(IElasticClient elasticClient, IConfiguration configuration)
         {
             this.elasticClient = elasticClient;
-            this.indexNameProperty = indexNameProperty;
-            this.indexNameMgmtCompany = indexNameMgmtCompany;
+            this.configuration = configuration;
+            ConfigureIndexes();
+        }
+        private void ConfigureIndexes()
+        {
+            var indexPropertyAutoComp = configuration["ElasticsearchSettings:IndexPropertyAutoComp"];
+            if (string.IsNullOrEmpty(indexPropertyAutoComp))
+                throw new Exception("Property auto-complete index not provided");
+            var indexMgmtCompAutoComp = configuration["ElasticsearchSettings:IndexMgmtCompAutoComp"];
+            if (string.IsNullOrEmpty(indexMgmtCompAutoComp))
+                throw new Exception("Mgmt company auto-complete index not provided");
+            var IndexPropertySearch = configuration["ElasticsearchSettings:IndexPropertySearch"];
+            if (string.IsNullOrEmpty(IndexPropertySearch))
+                throw new Exception("Property search index not provided");
+            var IndexMgmtCompSearch = configuration["ElasticsearchSettings:IndexMgmtCompSearch"];
+            if (string.IsNullOrEmpty(IndexMgmtCompSearch))
+                throw new Exception("Mgmt company search index not provided");
+            this.indexNameProperty = indexPropertyAutoComp;
+            this.indexNameMgmtCompany = indexMgmtCompAutoComp;
+            this.indexPropertySearch = IndexPropertySearch;
+            this.indexMgmtCompanySearch = IndexMgmtCompSearch;
         }
         public IEnumerable<SearchSuggestionResult> GetAutocompleteSuggestions(string text, string[] markets = null, 
             int size = 25, int misspellingMaxAllowed=2)
