@@ -54,7 +54,7 @@ namespace Data_Processor
             //SearchMatchPrefixPhase(elasticClient, indexName, "Stone R", 100, null);//"Atlanta");
             string[] marketList = new string[]{ "Francisc", "Atlanta" };
             //SearchMatchPrefixPhase(elasticClient, indexName, "mead", 20, marketList);
-            SearchMatchPrefixPhase(elasticClient, indexName, "Brookfiel", 400, market:marketList);
+            //SearchMatchPrefixPhase(elasticClient, indexName, "Brookfiel", 400, market:marketList);
         }
         private static void MgmtMethod()
         {
@@ -98,19 +98,6 @@ namespace Data_Processor
         {
             IPropertySetupConnector setupConnector = new PropertySetupConnector(elasticClient);
             setupConnector.IndexRecordsBulk(propertis, indexName);
-        }
-        private static void SearchMatchPrefixPhase(IElasticClient elasticClient, string indexName, string key, int size, string[] market)
-        {
-            /*IPropertySearchConnector searchConnector = new PropertySearchConnector(elasticClient);
-            //IEnumerable<PropertyItem> results = searchConnector.AutoCompleteSearchSimple(indexName, key, size: size, market:market);
-
-            //IEnumerable<PropertyItem> results = searchConnector.AutoCompleteNameByCustomAnalyzer(indexName, key, size: size, market: market);
-            IEnumerable<PropertyItem> results = searchConnector.AutoCompleteSearchByCustomAnalyzer(indexName, key, size: size, market: market, misspellingMaxAllowed:0);
-            
-            foreach (var result in results)
-            {
-                Console.WriteLine(JsonConvert.SerializeObject(result));
-            }*/
         }
     }
 }

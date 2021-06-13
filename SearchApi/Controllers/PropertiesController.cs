@@ -64,13 +64,6 @@ namespace SearchApi.Controllers
         }
         private IEnumerable<SearchSuggestionResult> GetSearchResults(string text, string[] markets, int limit)
         {
-            //string indexProperty = "property5";
-            //string indexMgmt = "mgmt4";
-            /*Uri url = new Uri("http://localhost:9200/");
-            ConnectionSettings settings = new ConnectionSettings(url);
-            settings.EnableDebugMode();
-            IElasticClient elasticClient = new ElasticClient(settings);*/
-            //ISearchService searchService = new ElasticsearchService(elasticClient);
             IEnumerable<SearchSuggestionResult> results = searchService.GetAutocompleteSuggestions(text, markets, size: limit, misspellingMaxAllowed: 1);
             return results;
         }
