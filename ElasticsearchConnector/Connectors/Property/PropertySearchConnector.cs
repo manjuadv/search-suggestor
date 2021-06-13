@@ -3,6 +3,7 @@ using SmartApart.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -26,7 +27,7 @@ namespace ElasticsearchConnector.Connectors.Property
             if (market == null)
             {
                 var searchResult = elasticClient.Search<PropertyItem>(s => s
-                    .Index(indexName)
+                    .Index(new string[] { indexName, "mgmt4" })
                     .Size(size)
                     .Query(q => q
                         .DisMax(dm=>dm
@@ -86,7 +87,7 @@ namespace ElasticsearchConnector.Connectors.Property
                 foreach (string v in market) marketList.Add(v.ToLower());
 
                 var searchResult = elasticClient.Search<PropertyItem>(s => s
-                    .Index(indexName)
+                    .Index(new string[] { indexName, "mgmt4" })
                     .Size(size)
                     .Query(q => q
                         .DisMax(dm => dm
@@ -138,6 +139,133 @@ namespace ElasticsearchConnector.Connectors.Property
 
                 return searchResult?.Documents;
             }
+        }
+
+        public IEnumerable<PropertyItem> SearchQueryBuild(string indexName, string text, int misspellingMaxAllowed = 0, string[] market = null, int size = 10)
+        {
+            if (market == null)
+            {
+                var searchResult = elasticClient.Search<PropertyItem>(s => s
+                    .Index(new string[] { indexName, "mgmt4" })
+                    .Size(size)
+                    .Query(q => q
+                        .DisMax(dm => dm
+                            .Queries(dq => dq
+                                .Match(GenerateMatchQuery(text,f=>f.Name,boostWeight:6,analyzerName: "standard", misspellingMaxAllowed:misspellingMaxAllowed)
+                                ),
+                                dq => dq.Match(m => m
+                                     .Boost(5) // second highest weight given to name so that match with name comes top
+                                     .Analyzer("standard")
+                                     .Field(f => f.FormerName)
+                                     .Fuzziness(Fuzziness.EditDistance(misspellingMaxAllowed))
+                                     .Query(text)
+                                ),
+                                dq => dq.Match(m => m
+                                     .Boost(4)
+                                     .Analyzer("standard")
+                                     .Field(f => f.City)
+                                     .Fuzziness(Fuzziness.EditDistance(misspellingMaxAllowed))
+                                     .Query(text)
+                                ),
+                                dq => dq.Match(m => m
+                                     .Boost(3)
+                                     .Analyzer("standard")
+                                     .Field(f => f.Market)
+                                     .Fuzziness(Fuzziness.EditDistance(misspellingMaxAllowed))
+                                     .Query(text)
+                                ),
+                                dq => dq.Match(m => m
+                                     .Boost(2)
+                                     .Analyzer("standard")
+                                     .Field(f => f.StreetAddress)
+                                     .Fuzziness(Fuzziness.EditDistance(misspellingMaxAllowed))
+                                     .Query(text)
+                                ),
+                                dq => dq.Match(m => m
+                                     .Boost(1)
+                                     .Analyzer("standard")
+                                     .Field(f => f.State)
+                                     .Fuzziness(Fuzziness.EditDistance(misspellingMaxAllowed))
+                                     .Query(text)
+                                )
+                            )
+                        )
+                    )
+                );
+
+                return searchResult?.Documents;
+            }
+            else
+            {
+                List<string> marketList = new List<string>();
+                foreach (string v in market) marketList.Add(v.ToLower());
+
+                var searchResult = elasticClient.Search<PropertyItem>(s => s
+                    .Index(new string[] { indexName, "mgmt4" })
+                    .Size(size)
+                    .Query(q => q
+                        .DisMax(dm => dm
+                            .Queries(dq => dq
+                                .Match(m => m
+                                    .Boost(6) // highest weight given to name so that match with name comes top
+                                    .Analyzer("standard")
+                                    .Field(f => f.Name)
+                                    .Fuzziness(Fuzziness.EditDistance(misspellingMaxAllowed))
+                                    .Query(text)
+                                ),
+                                dq => dq.Match(m => m
+                                     .Boost(5) // second highest weight given to name so that match with name comes top
+                                     .Analyzer("standard")
+                                     .Field(f => f.FormerName)
+                                     .Fuzziness(Fuzziness.EditDistance(misspellingMaxAllowed))
+                                     .Query(text)
+                                ),
+                                dq => dq.Match(m => m
+                                     .Boost(4)
+                                     .Analyzer("standard")
+                                     .Field(f => f.City)
+                                     .Fuzziness(Fuzziness.EditDistance(misspellingMaxAllowed))
+                                     .Query(text)
+                                ),
+                                // Market is not searched with Math since it's used to filter as a keyword
+                                dq => dq.Match(m => m
+                                     .Boost(2)
+                                     .Analyzer("standard")
+                                     .Field(f => f.StreetAddress)
+                                     .Fuzziness(Fuzziness.EditDistance(misspellingMaxAllowed))
+                                     .Query(text)
+                                ),
+                                dq => dq.Match(m => m
+                                     .Boost(1)
+                                     .Analyzer("standard")
+                                     .Field(f => f.State)
+                                     .Fuzziness(Fuzziness.EditDistance(misspellingMaxAllowed))
+                                     .Query(text)
+                                )
+                            )
+                        )
+                        && q.Terms(t => t
+                            .Field(f => f.Market)
+                            .Terms(marketList)
+                        )
+                    )
+                );
+
+                return searchResult?.Documents;
+            }
+        }
+
+        private Func<MatchQueryDescriptor<PropertyItem>, IMatchQuery> GenerateMatchQuery(string text,
+            Expression<Func<PropertyItem, string>> selectorFunc, int boostWeight = 1, 
+            string analyzerName = "standard", int misspellingMaxAllowed = 0)
+        {
+            Func<MatchQueryDescriptor<PropertyItem>, IMatchQuery> queryGenFunc = m => m
+                                      .Boost(boostWeight)
+                                      .Analyzer(analyzerName)
+                                      .Field(selectorFunc)
+                                      .Fuzziness(Fuzziness.EditDistance(misspellingMaxAllowed))
+                                      .Query(text);
+            return queryGenFunc;
         }
         
     }

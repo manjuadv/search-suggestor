@@ -1,5 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using ElasticsearchConnector.Services;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Nest;
+using SmartApart.Core.Models;
+using SmartApart.Core.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,8 +41,20 @@ namespace SearchApi.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("markets/{market}")]
-        public string Get(string text, string market, int limit=25)
+        public string Get(string text, string market="", int limit=25)
         {
+            string[] markests = new string[] { market };
+            if (string.IsNullOrEmpty(market))
+                markests = null;
+
+            string indexProperty = "property5";
+            string indexMgmt = "mgmt4";
+            Uri url = new Uri("http://localhost:9200/");
+            ConnectionSettings settings = new ConnectionSettings(url);
+            settings.EnableDebugMode();
+            IElasticClient elasticClient = new ElasticClient(settings);
+            ISearchService searchService = new ElasticsearchService(elasticClient, indexProperty, indexMgmt);
+            IEnumerable<SearchSuggestionResult> results = searchService.GetAutocompleteSuggestions(text, markests);
             return "value";
         }
     }

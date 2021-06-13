@@ -8,8 +8,9 @@ namespace SmartApart.Core.Models
 {
     public class SearchSuggestionResult
     {
+        public long EntityID { get; set; }
         public string Suggestion { get; set; }
         public string SourceType { get; set; }
-        public int Rank { get; set; }
+        public double? Rank { get; set; }
     }
 }
