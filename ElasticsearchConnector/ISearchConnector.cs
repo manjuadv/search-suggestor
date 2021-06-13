@@ -21,6 +21,6 @@ namespace ElasticsearchConnector
         /// <param name="text"></param>
         /// <param name="market"></param>
         /// <returns></returns>
-        IEnumerable<T> AutoCompleteSearchByCustomAnalyzer(string indexName, string text, string market = null, int size = 10);
+        IEnumerable<T> AutoCompleteSearchByCustomAnalyzer(string indexName, string text, int misspellingMaxAllowed=0, string[] market = null, int size = 10);
     }
 }

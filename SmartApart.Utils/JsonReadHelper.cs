@@ -13,6 +13,7 @@ namespace SmartApart.Utils
     public static class JsonReadHelper
     {
         private const string OBJECT_IDENTIFIER_NAME = "property";
+        private const string MGMT_COMP_IDENTIFIER_NAME = "mgmt";
         private const string COLON = ":";
         private const string COMMA = ",";
         private const string QUATATION = "\"";
@@ -39,10 +40,71 @@ namespace SmartApart.Utils
                     objStringList.Add(objString.Replace(Environment.NewLine, string.Empty));
                 }
                 startIndex = closeBracketIndex + 1;
-                if (objStringList.Count > 499)
-                    break;
             }
             return objStringList;
+        }
+        public static List<string> GetMgmtObjectString(string filePath)
+        {
+            string fileContent = System.IO.File.ReadAllText(filePath);
+            List<string> objStringList = new List<string>();
+            int startIndex = 0;
+            while (fileContent.IndexOf(MGMT_COMP_IDENTIFIER_NAME, startIndex) > 0)
+            {
+                int identifierEndIndex = fileContent.IndexOf(MGMT_COMP_IDENTIFIER_NAME, startIndex);
+                int openBracketIndex = fileContent.IndexOf(OPEN_CURLY_BRACKET, identifierEndIndex);
+                int closeBracketIndex = fileContent.IndexOf(CLOSE_CURLY_BRACKET, openBracketIndex);
+
+                if (identifierEndIndex > 0 && openBracketIndex > 0 && closeBracketIndex > 0)
+                {
+                    string objString = fileContent.Substring(openBracketIndex, (closeBracketIndex - openBracketIndex + 1));
+                    objStringList.Add(objString.Replace(Environment.NewLine, string.Empty));
+                }
+                startIndex = closeBracketIndex + 1;
+            }
+            return objStringList;
+        }
+        public static List<MgmtCompany> GetMgmtCompanyModelByJsonStrings(List<string> jsonStringList, string sourceFileName, bool allowDuplicateUpload = false)
+        {
+            List<MgmtCompany> objectList = new List<MgmtCompany>();
+            Dictionary<long, int> uploaedMgmtCompaniesIDs = GetUploadedPropertyIDs(sourceFileName);
+            for (int i = 0; i < jsonStringList.Count; i++)
+            {
+                string jsonString = jsonStringList[i];
+                MgmtCompany mgmtComp = null;
+                try
+                {
+                    mgmtComp = Newtonsoft.Json.JsonConvert.DeserializeObject<MgmtCompany>(jsonString);
+                }
+                catch (Exception ex)
+                {
+                   
+                }
+
+                if (mgmtComp == null)
+                {
+                    Console.WriteLine(string.Format("Error happened while reading record {0}", i));
+                    continue;
+                }
+
+                if (uploaedMgmtCompaniesIDs.Keys.Contains(mgmtComp.MgmtID))
+                {
+                    if (allowDuplicateUpload)
+                    {
+                        objectList.Add(mgmtComp);
+                    }
+                    else
+                    {
+                        Console.WriteLine(string.Format("Record {0} already uploaded", i));
+                    }
+                }
+                else
+                {
+                    objectList.Add(mgmtComp);
+                    uploaedMgmtCompaniesIDs.Add(mgmtComp.MgmtID, 1);
+                    SaveUploadedPropertyID(sourceFileName, mgmtComp.MgmtID);
+                }
+            }
+            return objectList;
         }
         public static List<PropertyItem> GetPropertyModelByJsonStrings(List<string> jsonStringList, string sourceFileName, bool allowDuplicateUpload=false)
         {
@@ -67,7 +129,7 @@ namespace SmartApart.Utils
                     continue;
                 }
 
-                if (uploaedPropertyIDs.Keys.Contains(i))
+                if (uploaedPropertyIDs.Keys.Contains(propertyItem.PropertyID))
                 {
                     if (allowDuplicateUpload)
                     {
@@ -81,8 +143,8 @@ namespace SmartApart.Utils
                 else
                 {
                     objectList.Add(propertyItem);
-                    uploaedPropertyIDs.Add(i, 1);
-                    SaveUploadedPropertyID(sourceFileName, i);
+                    uploaedPropertyIDs.Add(propertyItem.PropertyID, 1);
+                    SaveUploadedPropertyID(sourceFileName, propertyItem.PropertyID);
                 }
             }
             return objectList;
@@ -205,7 +267,7 @@ namespace SmartApart.Utils
                 return new Dictionary<long, int>();
             }
         }
-        private static void SaveUploadedPropertyID(string sourceFileName, int sequenceID)
+        private static void SaveUploadedPropertyID(string sourceFileName, long sequenceID)
         {
             File.AppendAllLines(UPLOADED_PROPERTY_ID_FILE, new string[] { sequenceID.ToString() + "," + sourceFileName });
         }
