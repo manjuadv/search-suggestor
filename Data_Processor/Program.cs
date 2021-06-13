@@ -28,13 +28,13 @@ namespace Data_Processor
             IElasticClient elasticClient = new ElasticClient(settings);
             
            
-            string indexName = "property10";
+            string indexName = "property12";
 
             //CreateIndexAutoMap(elasticClient, indexName);
 
-            CreateIndexSearchSuggestion(elasticClient, indexName);
+            //CreateIndexSearchSuggestion(elasticClient, indexName);
 
-            IndexPropertyItem(elasticClient, indexName, propertyList[0]);
+            //IndexPropertyItem(elasticClient, indexName, propertyList[0]);
             //SearchMatchPrase(elasticClient, indexName, "Abilene");
             //SearchTerm(elasticClient, indexName, "Abilene");
             //SearchMatchPrase(elasticClient, indexName, "Cur"); // No match
@@ -45,7 +45,7 @@ namespace Data_Processor
             //IndexPropertyItemBulkAll(elasticClient, indexName, propertyList, 10);
 
             //SearchMatchPrefixPhase(elasticClient, indexName, "Stone R", 100, null);//"Atlanta");
-            //SearchMatchPrefixPhase(elasticClient, indexName, "Stone vi", 100, null);//"Atlanta");
+            SearchMatchPrefixPhase(elasticClient, indexName, "Mead", 20, null);
         }
         private static void CreateIndexAutoMap(IElasticClient elasticClient, string indexName)
         {
@@ -95,8 +95,11 @@ namespace Data_Processor
         private static void SearchMatchPrefixPhase(IElasticClient elasticClient, string indexName, string key, int size, string market)
         {
             AwsElasticsearchSearchConnector searchConnector = new AwsElasticsearchSearchConnector(elasticClient);
-            IEnumerable<PropertyItem> results = searchConnector.AutoCompleteSearchSimple(indexName, key, size: size, market:market);
+            //IEnumerable<PropertyItem> results = searchConnector.AutoCompleteSearchSimple(indexName, key, size: size, market:market);
 
+            //IEnumerable<PropertyItem> results = searchConnector.AutoCompleteNameByCustomAnalyzer(indexName, key, size: size, market: market);
+            IEnumerable<PropertyItem> results = searchConnector.AutoCompleteSearchByCustomAnalyzer(indexName, key, size: size, market: market);
+            
             foreach (var result in results)
             {
                 Console.WriteLine(JsonConvert.SerializeObject(result));

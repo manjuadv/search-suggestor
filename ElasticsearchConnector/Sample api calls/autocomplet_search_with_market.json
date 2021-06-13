@@ -1,0 +1,32 @@
+{
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "dis_max": {
+            "queries": [
+              {
+                "match": {
+                  "name": {
+                    "analyzer": "standard",
+                    "query": "Mead"
+                  }
+                }
+              },
+              {
+                "match": {
+                  "streetAddress": {
+                    "analyzer": "standard",
+                    "query": "Mead"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        { "term": { "market": { "value": "atlanta" } } }
+      ]
+    }
+  },
+  "size": 100
+}
