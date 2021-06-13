@@ -52,9 +52,9 @@ namespace Data_Processor
             //IndexPropertyItemBulkAll(elasticClient, indexName, propertyList, 10);
 
             //SearchMatchPrefixPhase(elasticClient, indexName, "Stone R", 100, null);//"Atlanta");
-            string[] marketList = new string[]{ "Amarillo" , "Atlanta" };
+            string[] marketList = new string[]{ "San Francisco", "Atlanta" };
             //SearchMatchPrefixPhase(elasticClient, indexName, "mead", 20, marketList);
-            SearchMatchPrefixPhase(elasticClient, indexName, "Ventana On Ro", 400, null);
+            SearchMatchPrefixPhase(elasticClient, indexName, "Brookfiel", 400, market:null);
         }
         private static void MgmtMethod()
         {
