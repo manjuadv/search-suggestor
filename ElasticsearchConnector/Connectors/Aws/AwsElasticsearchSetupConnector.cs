@@ -53,13 +53,7 @@ namespace ElasticsearchConnector.Connectors.Aws
 
 
             var createIndexResponse = elasticClient.Indices.Create(indexName, createIndexReqeust);
-        }
-        
-        public void CreateIndexAutoMap(string indexName)
-        {
-            var createIndexResponse = elasticClient.Indices.CreateAsync(indexName, c => c
-           .Map<PropertyItem>(m => m.AutoMap()));
-        }
+        }       
 
         public void IndexRecord(PropertyItem proerpty, string indexName)
         {

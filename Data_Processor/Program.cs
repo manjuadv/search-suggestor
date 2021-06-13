@@ -47,11 +47,6 @@ namespace Data_Processor
             //SearchMatchPrefixPhase(elasticClient, indexName, "Stone R", 100, null);//"Atlanta");
             SearchMatchPrefixPhase(elasticClient, indexName, "Mead", 20, null);
         }
-        private static void CreateIndexAutoMap(IElasticClient elasticClient, string indexName)
-        {
-            AwsElasticsearchSetupConnector setupConnector = new AwsElasticsearchSetupConnector(elasticClient);
-            setupConnector.CreateIndexAutoMap(indexName);
-        }
         private static void CreateIndexSearchSuggestion(IElasticClient elasticClient, string indexName)
         {
             AwsElasticsearchSetupConnector setupConnector = new AwsElasticsearchSetupConnector(elasticClient);
@@ -71,26 +66,6 @@ namespace Data_Processor
         {           
             AwsElasticsearchSetupConnector setupConnector = new AwsElasticsearchSetupConnector(elasticClient);
             setupConnector.IndexRecordsBulk(propertis, indexName);
-        }
-
-        private static void SearchMatchPrase(IElasticClient elasticClient, string indexName, string key)
-        {           
-            AwsElasticsearchSearchConnector searchConnector = new AwsElasticsearchSearchConnector(elasticClient);
-            IEnumerable<PropertyItem> results = searchConnector.SearchByName(indexName, key);
-            foreach (var result in results)
-            {
-                Console.WriteLine(JsonConvert.SerializeObject(result));
-            }
-        }
-        private static void SearchTerm(IElasticClient elasticClient, string indexName, string key)
-        {            
-            AwsElasticsearchSearchConnector searchConnector = new AwsElasticsearchSearchConnector(elasticClient);
-            IEnumerable<PropertyItem> results = searchConnector.FilterByName(indexName, key);
-
-            foreach (var result in results)
-            {
-                Console.WriteLine(JsonConvert.SerializeObject(result));
-            }
         }
         private static void SearchMatchPrefixPhase(IElasticClient elasticClient, string indexName, string key, int size, string market)
         {
