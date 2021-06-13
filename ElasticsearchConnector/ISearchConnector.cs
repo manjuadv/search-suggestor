@@ -21,7 +21,7 @@ namespace ElasticsearchConnector
         /// <param name="text"></param>
         /// <param name="market"></param>
         /// <returns></returns>
-        IEnumerable<T> AutoCompleteSearchByCustomAnalyzer(string indexName, string text, string market = null);
+        IEnumerable<T> AutoCompleteSearchByCustomAnalyzer(string indexName, string text, string market = null, int size = 10);
         /// <summary>
         /// This is simple mechanism, not Stop words removing.
         /// </summary>

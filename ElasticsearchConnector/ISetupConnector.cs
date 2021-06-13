@@ -6,7 +6,8 @@ namespace ElasticsearchConnector
 {
     public interface ISetupConnector<T>
     {
-        void CreateIndex(string indexName);
+        void CreateSearchSuggetionIndex(string indexName);
+        void CreateIndexAutoMap(string indexName);
         void IndexRecord(T document, string indexName);
         void IndexRecordsBulkAll(IEnumerable<T> documents, string indexName, int itemsPerRequest);
         void IndexRecordsBulk(IEnumerable<T> documents, string indexName);

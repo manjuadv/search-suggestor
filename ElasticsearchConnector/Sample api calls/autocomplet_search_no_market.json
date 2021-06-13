@@ -1,0 +1,26 @@
+// sss
+{
+  "query": {
+    "dis_max": {
+      "queries": [
+        {
+          "match": {
+            "name": {
+              "analyzer": "standard",
+              "query": "Mead"
+            }
+          }
+        },
+        {
+          "match": {
+            "streetAddress": {
+              "analyzer": "standard",
+              "query": "Mead"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "size": 20
+}

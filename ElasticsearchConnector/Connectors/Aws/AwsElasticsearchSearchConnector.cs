@@ -21,9 +21,107 @@ namespace ElasticsearchConnector.Connectors.Aws
             throw new NotImplementedException();
         }
 
-        public IEnumerable<PropertyItem> AutoCompleteSearchByCustomAnalyzer(string indexName, string text, string market = null)
+        public IEnumerable<PropertyItem> AutoCompleteSearchByCustomAnalyzer(string indexName, string text, string market = null, int size = 10)
         {
-            throw new NotImplementedException();
+            if (market == null)
+            {
+                var searchResult = elasticClient.Search<PropertyItem>(s => s
+                    .Index(indexName)
+                    .Size(size)
+                    .Query(q => q
+                        .DisMax(dm=>dm
+                            .Queries(dq=>dq
+                                .Match(m => m
+                                    .Analyzer("standard")
+                                    .Field(f => f.Name)
+                                    //.Fuzziness(Fuzziness.EditDistance(2))
+                                    .Query(text)
+                                ),
+                                dq=> dq.Match(m => m
+                                    .Analyzer("standard")
+                                    .Field(f => f.StreetAddress)
+                                    //.Fuzziness(Fuzziness.EditDistance(2))
+                                    .Query(text)
+                                )
+                            )
+                        )                      
+                    )
+                );
+
+                return searchResult?.Documents;
+            }
+            else
+            {
+                var searchResult = elasticClient.Search<PropertyItem>(s => s
+                    .Index(indexName)
+                    .Size(size)
+                    .Query(q => q
+                        .DisMax(dm => dm
+                            .Queries(dq => dq
+                                .Match(m => m
+                                    .Analyzer("standard")
+                                    .Field(f => f.Name)
+                                    //.Fuzziness(Fuzziness.EditDistance(2))
+                                    .Query(text)
+                                ),
+                                dq => dq.Match(m => m
+                                     .Analyzer("standard")
+                                     .Field(f => f.StreetAddress)
+                                     //.Fuzziness(Fuzziness.EditDistance(2))
+                                     .Query(text)
+                                )
+                            )
+                        )
+                        && q.Term(t => t
+                            .Field(f => f.Market)
+                            .Value(market.ToLower())
+                        )
+                    )
+                );
+
+                return searchResult?.Documents;
+            }
+        }
+        public IEnumerable<PropertyItem> AutoCompleteNameByCustomAnalyzer(string indexName, string text, string market = null, int size = 10)
+        {
+            if (market == null)
+            {
+                var searchResult = elasticClient.Search<PropertyItem>(s => s
+                    .Index(indexName)
+                    .Size(size)
+                    .Query(q => q
+                        .Match(m => m
+                            .Analyzer("standard")
+                            .Field(f => f.Name)
+                            //.Fuzziness(Fuzziness.EditDistance(2))
+                            .Query(text)
+                        )
+                    )
+                );
+
+                return searchResult?.Documents;
+            }
+            else
+            {
+                var searchResult = elasticClient.Search<PropertyItem>(s => s
+                    .Index(indexName)
+                    .Size(size)
+                    .Query(q => q
+                        .Match(m => m
+                            .Analyzer("standard")
+                            .Field(f => f.Name)
+                            //.Fuzziness(Fuzziness.EditDistance(2))
+                            .Query(text)
+                        )
+                        && q.Term(t => t
+                            .Field(f => f.Market)
+                            .Value(market.ToLower())
+                        )
+                    )
+                );
+
+                return searchResult?.Documents;
+            }
         }
 
         public IEnumerable<PropertyItem> AutoCompleteSearchSimple(string indexName, string text, string market = null, int size=10)
@@ -33,19 +131,6 @@ namespace ElasticsearchConnector.Connectors.Aws
                 var results = elasticClient.Search<PropertyItem>(s => s
                 .Index(indexName)
                 .Size(size)
-                //.Query(q => q.MatchPhrasePrefix(m => m.Field(f => f.Name).Query(text))));
-                //.Query(q => q.MultiMatch(m => m.Fields(f => f.Fields("name", "formerName", "city")).Query(text))));
-                /*.Query(q => q.Bool(b => b
-                   .Must(mu => mu
-                               .MultiMatch(m => m
-                                       .Fields(f => f.Field("Name").Field("FormerName").Field("City"))
-                                 .Query(text)
-                                  ) && q
-                                .MultiMatch(m => m
-                            .Fields(f => f.Field("Name").Field("FormerName").Field("City"))
-                                   .Query("Califronia")
-                                )))));*/
-                //.Query(q => q.MultiMatch(mm => mm.Query(text))));
                 .Query(q => q
                 .DisMax(dm => dm
                     .Queries(dq => dq.MatchPhrasePrefix(m => m.Field("name").Query(text))
@@ -62,7 +147,6 @@ namespace ElasticsearchConnector.Connectors.Aws
             {
                 var results = elasticClient.Search<PropertyItem>(s => s
                .Index(indexName)
-               //.Analyzer("standard")
                .Size(size)
                .Query(q => q
                .DisMax(dm => dm

@@ -1,0 +1,5 @@
+//GET properties/_analyze?pretty
+{
+  "analyzer": "autocomp_cust_no_stop",
+  "text":     "Stone Ridge at Vinings"
+}
