@@ -24,8 +24,8 @@ namespace Data_Processor
             string sourceFileName = "properties.json";
             string filePath = @"..\..\..\..\DataFiles\";
 
-            //List<string> objectStrings = JsonReadHelper.GetObjectString(filePath + sourceFileName);
-            //List<PropertyItem> propertyList = JsonReadHelper.GetPropertyModelByJsonStrings(objectStrings, sourceFileName, allowDuplicateUpload: true);
+            List<string> objectStrings = JsonReadHelper.GetObjectString(filePath + sourceFileName);
+            List<PropertyItem> propertyList = JsonReadHelper.GetPropertyModelByJsonStrings(objectStrings, sourceFileName, allowDuplicateUpload: true);
 
 
             //Uri url = new Uri("https://propuser:data$1User@search-properties-fy3tslyamx44nmky4ezpycpaea.ap-south-1.es.amazonaws.com");
@@ -35,9 +35,13 @@ namespace Data_Processor
             IElasticClient elasticClient = new ElasticClient(settings);
 
 
-            string indexName = "property5";
+            string indexName = "prop-fs1";
+
+            IPropertySetupConnector setupConnector = new PropertySetupConnector(elasticClient);
+            setupConnector.CreateFulltextSearchIndex(indexName);
 
             //CreateIndexAutoMap(elasticClient, indexName);
+
 
             //CreateIndexSearchSuggestion(elasticClient, indexName);
 
@@ -49,7 +53,7 @@ namespace Data_Processor
 
             //SearchMatchPrefixPhase(elasticClient, indexName, "Ranc");
 
-            //IndexPropertyItemBulkAll(elasticClient, indexName, propertyList, 10);
+            IndexPropertyItemBulkAll(elasticClient, indexName, propertyList, 10);
 
             //SearchMatchPrefixPhase(elasticClient, indexName, "Stone R", 100, null);//"Atlanta");
             string[] marketList = new string[]{ "Francisc", "Atlanta" };
@@ -61,19 +65,20 @@ namespace Data_Processor
             string sourceFileName = "mgmt.json";
             string filePath = @"..\..\..\..\DataFiles\";
 
-            //List<string> objectStrings = JsonReadHelper.GetMgmtObjectString(filePath + sourceFileName);
-            //List<MgmtCompany> mgmtCompList = JsonReadHelper.GetMgmtCompanyModelByJsonStrings(objectStrings, sourceFileName, allowDuplicateUpload: false);
+            List<string> objectStrings = JsonReadHelper.GetMgmtObjectString(filePath + sourceFileName);
+            List<MgmtCompany> mgmtCompList = JsonReadHelper.GetMgmtCompanyModelByJsonStrings(objectStrings, sourceFileName, allowDuplicateUpload: false);
 
-            string indexName = "mgmt4";
+            string indexName = "mgmt-fs1";
             Uri url = new Uri("http://localhost:9200/");
             ConnectionSettings settings = new ConnectionSettings(url);
             settings.EnableDebugMode();
             IElasticClient elasticClient = new ElasticClient(settings);
 
             IMgmtCompSetupConnector setupCon = new MgmtCompSetupConnector(elasticClient);
+            setupCon.CreateFulltextSearchIndex(indexName);
             //setupCon.CreateSearchSuggetionIndex(indexName);
             //setupCon.IndexRecord(mgmtCompList[0], indexName);
-            //setupCon.IndexRecordsBulkAll(mgmtCompList, indexName, 50);
+            setupCon.IndexRecordsBulkAll(mgmtCompList, indexName, 50);
 
             /*IMgmtCompSearchConnector srchCon = new MgmtCompSearchConnector(elasticClient);
             srchCon.AutoCompleteSearchByCustomAnalyzer(indexName, "Avan", market: null, size: 100);*/

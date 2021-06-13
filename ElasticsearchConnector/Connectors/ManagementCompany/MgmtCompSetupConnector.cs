@@ -17,6 +17,38 @@ namespace ElasticsearchConnector.Connectors.ManagementCompany
         {
             this.elasticClient = elasticClient;
         }
+        public void CreateFulltextSearchIndex(string indexName)
+        {
+            Func<CreateIndexDescriptor, ICreateIndexRequest> createIndexReqeust = i => i
+            .Settings(st => st
+                .Analysis(an => an
+                    .Analyzers(an => an
+                        .Custom("cust_no_stop", c => c
+                            .Tokenizer("standard").Filters("lowercase", "stop")
+                         )
+                     )
+                 )
+             )
+            .Map<MgmtCompany>(mm => mm
+                .Properties(p => p
+                    .Text(t => t
+                        .Name(n => n.Name)
+                        .Analyzer("cust_no_stop")
+                    )
+                    .Text(t => t
+                        .Name(n => n.Market)
+                        .Analyzer("cust_no_stop")
+                    )
+                    .Text(t => t
+                        .Name(n => n.State)
+                        .Analyzer("standard")
+                    )
+                )
+              );
+
+
+            var createIndexResponse = elasticClient.Indices.Create(indexName, createIndexReqeust);
+        }
         public void CreateSearchSuggetionIndex(string indexName)
         {
             Func<CreateIndexDescriptor, ICreateIndexRequest> createIndexReqeust = i => i

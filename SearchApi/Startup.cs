@@ -37,6 +37,7 @@ namespace SearchApi
             });
 
             var settings = new ConnectionSettings(new Uri(Configuration["ElasticsearchSettings:uri"]));
+            settings.EnableDebugMode();
             var client = new ElasticClient(settings);
             services.AddSingleton<IElasticClient>(client);
             services.AddScoped<ISearchService, ElasticsearchService>();
