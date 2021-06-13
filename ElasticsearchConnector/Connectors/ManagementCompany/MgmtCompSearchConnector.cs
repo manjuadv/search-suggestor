@@ -86,9 +86,9 @@ namespace ElasticsearchConnector.Connectors.ManagementCompany
                                 )
                             )
                         )
-                        && q.Term(t => t
+                       && q.Terms(t => t
                             .Field(f => f.Market)
-                            .Value(marketList)
+                            .Terms(marketList)
                         )
                     )
                 );

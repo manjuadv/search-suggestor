@@ -129,10 +129,6 @@ namespace ElasticsearchConnector.Connectors.Property
                                 )
                             )
                         )
-                        /*&& q.Term(t => t
-                            .Field(f => f.Market)
-                            .Value(market)
-                        )*/
                         && q.Terms(t=>t
                             .Field(f=>f.Market)
                             .Terms(marketList)
