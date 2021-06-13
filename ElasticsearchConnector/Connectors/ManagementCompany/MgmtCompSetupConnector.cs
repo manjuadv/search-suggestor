@@ -7,46 +7,47 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ElasticsearchConnector.Connectors.Aws
+namespace ElasticsearchConnector.Connectors.ManagementCompany
 {
-    public class AwsElasticsearchSetupConnector : ISetupConnector<PropertyItem>
+    public class MgmtCompSetupConnector : IMgmtCompSetupConnector
     {
         private readonly IElasticClient elasticClient;
 
-        public AwsElasticsearchSetupConnector(IElasticClient elasticClient)
+        public MgmtCompSetupConnector(IElasticClient elasticClient)
         {
             this.elasticClient = elasticClient;
         }
         public void CreateSearchSuggetionIndex(string indexName)
         {
             Func<CreateIndexDescriptor, ICreateIndexRequest> createIndexReqeust = i => i
-            .Settings(st=>st
-                .Analysis(an=>an
-                    .TokenFilters(tf=>tf
-                        .EdgeNGram("edge_ng_filter", eg=>eg
+            .Settings(st => st
+                .Analysis(an => an
+                    .TokenFilters(tf => tf
+                        .EdgeNGram("edge_ng_filter", eg => eg
                             .MinGram(1).MaxGram(20)
                          )
                      )
-                    .Analyzers(an=>an
-                        .Custom("autocomp_cust_no_stop", c=>c
+                    .Analyzers(an => an
+                        .Custom("autocomp_cust_no_stop", c => c
                             .Tokenizer("standard").Filters("lowercase", "edge_ng_filter", "stop")
                          )
-                     )                
+                     )
                  )
              )
-            .Map<PropertyItem>(mm => mm
+            .Map<MgmtCompany>(mm => mm
                 .Properties(p => p
                     .Text(t => t
                         .Name(n => n.Name)
                         .Analyzer("autocomp_cust_no_stop")
                     )
                     .Text(t => t
-                        .Name(n => n.FormerName)
+                        .Name(n => n.Market)
                         .Analyzer("autocomp_cust_no_stop")
+                        //.Fields(f=>f.Keyword(k=>k.Name(n=>n.Market).IgnoreAbove(256)))
                     )
                     .Text(t => t
-                        .Name(n => n.StreetAddress)
-                        .Analyzer("autocomp_cust_no_stop")
+                        .Name(n => n.State)
+                        .Analyzer("standard")
                     )
                 )
               );
@@ -54,21 +55,15 @@ namespace ElasticsearchConnector.Connectors.Aws
 
             var createIndexResponse = elasticClient.Indices.Create(indexName, createIndexReqeust);
         }
-        
-        public void CreateIndexAutoMap(string indexName)
+
+        public void IndexRecord(MgmtCompany mgmtCompany, string indexName)
         {
-            var createIndexResponse = elasticClient.Indices.CreateAsync(indexName, c => c
-           .Map<PropertyItem>(m => m.AutoMap()));
+            var response = elasticClient.Index(mgmtCompany, i => i.Index(indexName));
         }
 
-        public void IndexRecord(PropertyItem proerpty, string indexName)
+        public void IndexRecordsBulk(IEnumerable<MgmtCompany> mgmtCompanies, string indexName)
         {
-            var response = elasticClient.Index(proerpty, i => i.Index(indexName));
-        }
-
-        public void IndexRecordsBulk(IEnumerable<PropertyItem> propertis, string indexName)
-        {
-            var response = elasticClient.Bulk(b => b.Index(indexName).IndexMany(propertis));
+            var response = elasticClient.Bulk(b => b.Index(indexName).IndexMany(mgmtCompanies));
             if (response.Errors)
             {
                 foreach (var errorItem in response.ItemsWithErrors)
@@ -86,9 +81,10 @@ namespace ElasticsearchConnector.Connectors.Aws
             }
         }
 
-        public void IndexRecordsBulkAll(IEnumerable<PropertyItem> propertis, string indexName, int itemsPerRequest)
+        public void IndexRecordsBulkAll(IEnumerable<MgmtCompany> mgmtCompanies, string indexName, int itemsPerRequest)
         {
-            var bulkAllObservable = elasticClient.BulkAll(propertis, b => b
+
+            var bulkAllObservable = elasticClient.BulkAll(mgmtCompanies, b => b
             .Index(indexName)
             .BackOffTime("30s")
             .BackOffRetries(2)
