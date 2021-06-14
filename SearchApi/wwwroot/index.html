@@ -10,8 +10,15 @@
         $(function () {
             $("#search").autocomplete({
                 source: function (request, response) {
+                    var marketList = "";
+                    if ($("#markets").val()) {
+                        
+                        $.each($("#markets").val().split(','), function (i, a) {
+                            marketList = marketList + "&market=" + a;
+                        });
+                    }
                     $.ajax({
-                        url: "/api/Search/?text=" + request.term,
+                        url: "/api/Search/?text=" + request.term + marketList,
                         dataType: "json",
                         data: {
                            
@@ -38,14 +45,21 @@
             }).autocomplete("instance")._renderItem = function (ul, item) {
                 return $("<li class='" + item.classname + "'></li>")
                     .data("item.autocomplete", item)
-                    .append("<b>" + item.label + "</b> <i class='text-dark'>[" + item.sourceType + "]</i>")
+                    .append("<b>" + item.label + "</b> <i class='text-dark'>[" + item.sourceType + " | " + item.source.market + "]</i>")
                     .appendTo(ul);
                 };
 
             $("#autocomp").autocomplete({
                 source: function (request, response) {
+                    var marketList = "";
+                    if ($("#markets").val()) {
+
+                        $.each($("#markets").val().split(','), function (i, a) {
+                            marketList = marketList + "&market=" + a;
+                        });
+                    }
                     $.ajax({
-                        url: "/api/AutoComp/?text=" + request.term,
+                        url: "/api/AutoComp/?text=" + request.term + marketList,
                         dataType: "json",
                         data: {
 
@@ -72,7 +86,7 @@
             }).autocomplete("instance")._renderItem = function (ul, item) {
                 return $("<li class='" + item.classname + "'></li>")
                     .data("item.autocomplete", item)
-                    .append("<b>" + item.label + "</b> <i class='text-dark'>[" + item.sourceType + "]</i>")
+                    .append("<b>" + item.label + "</b> <i class='text-dark'>[" + item.sourceType + " | " + item.source.market + "]</i>")
                     .appendTo(ul);
             };
 
@@ -91,11 +105,21 @@
 <body>
     <div class="jumbotron">
         <div class="container">
-            <h1>Hello, THis is Manjula Rnasinghe's assessment!</h1>
-            <p>This page demonstrate searching functionality I developed.</p>
+            <h1>Hello!</h1>
+            <p>This page demonstrate searching functionality.</p>
         </div>
     </div>
     <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <form>
+                    <div class="form-group">                        
+                        <input type="text" class="form-control" id="markets" placeholder="Type markets here (comma separated)">
+                    </div>
+                    <br />
+                </form>
+            </div>
+        </div>
         <div class="row">
             <div class="col">
                 <div class="row">
