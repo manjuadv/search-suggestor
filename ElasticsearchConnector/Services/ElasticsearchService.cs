@@ -211,11 +211,11 @@ namespace ElasticsearchConnector.Services
                 string sourceType = "";
                 foreach (var hit in searchResponse.Hits)
                 {
-                    if (hit.Index == indexNameProperty)
+                    if (hit.Index == indexPropertySearch)
                     {
                         sourceType = "property";
                     }
-                    else if (hit.Index == indexNameMgmtCompany)
+                    else if (hit.Index == indexMgmtCompanySearch)
                     {
                         sourceType = "mgmtComp";
 

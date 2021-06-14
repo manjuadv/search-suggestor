@@ -40,9 +40,6 @@ namespace SmartApart.Utils
                     objStringList.Add(objString.Replace(Environment.NewLine, string.Empty));
                 }
                 startIndex = closeBracketIndex + 1;
-
-                if (objStringList.Count > 250)
-                    break;
             }
             return objStringList;
         }
@@ -63,9 +60,6 @@ namespace SmartApart.Utils
                     objStringList.Add(objString.Replace(Environment.NewLine, string.Empty));
                 }
                 startIndex = closeBracketIndex + 1;
-
-                if (objStringList.Count > 250)
-                    break;
             }
             return objStringList;
         }

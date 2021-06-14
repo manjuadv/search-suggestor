@@ -19,8 +19,8 @@ namespace Data_Processor
             //MgmtMethod();
             //PropertyMethod();
 
-            //Uri url = new Uri("https://propuser:data$1User@search-properties-fy3tslyamx44nmky4ezpycpaea.ap-south-1.es.amazonaws.com");
-            Uri url = new Uri("http://localhost:9200/");
+            Uri url = new Uri("https://propuser:data$1User@search-properties-fy3tslyamx44nmky4ezpycpaea.ap-south-1.es.amazonaws.com");
+            //Uri url = new Uri("http://localhost:9200/");
             ConnectionSettings settings = new ConnectionSettings(url);
             settings.EnableDebugMode();
             IElasticClient elasticClient = new ElasticClient(settings);
