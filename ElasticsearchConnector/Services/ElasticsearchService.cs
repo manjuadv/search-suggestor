@@ -50,7 +50,7 @@ namespace ElasticsearchConnector.Services
         public IEnumerable<SearchSuggestionResult> GetAutocompleteSuggestions(string text, string[] markets = null, 
             int size = 25, int misspellingMaxAllowed=2)
         {         
-            ISearchResponse<SearchEntity> searchResponse = GetSearchResults(text, size: size, market: markets, 
+            ISearchResponse<SearchEntity> searchResponse = GetSearchResults(indexNameProperty, indexNameMgmtCompany, text, size: size, market: markets, 
                 misspellingMaxAllowed: misspellingMaxAllowed);
             if (searchResponse == null)
             {
@@ -77,13 +77,13 @@ namespace ElasticsearchConnector.Services
                 return resultsList;
             }
         }
-        private ISearchResponse<SearchEntity> GetSearchResults(string text, int misspellingMaxAllowed = 0, 
+        private ISearchResponse<SearchEntity> GetSearchResults(string indexProp, string indexMgmt, string text, int misspellingMaxAllowed = 0, 
             string[] market = null, int size = 10)
         {
             if (market == null)
             {
                 var searchResult = elasticClient.Search<SearchEntity>(s => s
-                    .Index(new string[] { indexNameProperty, indexNameMgmtCompany })
+                    .Index(new string[] { indexProp, indexMgmt })
                     .Size(size)
                     .Query(q => q
                         .DisMax(dm => dm
@@ -143,7 +143,7 @@ namespace ElasticsearchConnector.Services
                 foreach (string v in market) marketList.Add(v.ToLower());
 
                 var searchResult = elasticClient.Search<SearchEntity>(s => s
-                    .Index(new string[] { indexNameProperty, indexNameMgmtCompany })
+                    .Index(new string[] { indexProp, indexMgmt })
                     .Size(size)
                     .Query(q => q
                         .DisMax(dm => dm
@@ -194,6 +194,43 @@ namespace ElasticsearchConnector.Services
                 );
 
                 return searchResult;
+            }
+        }
+
+        public IEnumerable<SearchSuggestionResult> GetSearchResults(string text, string[] markets = null, int size = 25, int misspellingMaxAllowed = 2)
+        {
+            ISearchResponse<SearchEntity> searchResponse = GetSearchResults(indexPropertySearch, indexMgmtCompanySearch, text, size: size, market: markets,
+                misspellingMaxAllowed: misspellingMaxAllowed);
+            if (searchResponse == null)
+            {
+                throw new Exception("Null response received");
+            }
+            else
+            {
+                List<SearchSuggestionResult> resultsList = new List<SearchSuggestionResult>();
+                string sourceType = "";
+                foreach (var hit in searchResponse.Hits)
+                {
+                    if (hit.Index == indexNameProperty)
+                    {
+                        sourceType = "property";
+                    }
+                    else if (hit.Index == indexNameMgmtCompany)
+                    {
+                        sourceType = "mgmtComp";
+
+                    }
+                    resultsList.Add(new SearchSuggestionResult
+                    {
+                        EntityID = hit.Source.PropertyID,
+                        Suggestion = hit.Source.Name,
+                        SourceType = sourceType,
+                        Rank = hit.Score,
+                        FormerName = hit.Source.FormerName,
+                        Source = hit.Source
+                    });
+                }
+                return resultsList;
             }
         }
     }
