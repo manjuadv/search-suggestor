@@ -16,14 +16,14 @@ namespace SearchApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class PropertiesController : ControllerBase
+    public class AutoCompController : ControllerBase
     {
-        private readonly ILogger<PropertiesController> _logger;
+        private readonly ILogger<AutoCompController> _logger;
         private readonly IElasticClient elasticClient;
         private readonly IConfiguration configuration;
         private readonly ISearchService searchService;
 
-        public PropertiesController(ILogger<PropertiesController> logger, IElasticClient elasticClient, 
+        public AutoCompController(ILogger<AutoCompController> logger, IElasticClient elasticClient, 
             IConfiguration configuration, ISearchService searchService)
         {
             _logger = logger;

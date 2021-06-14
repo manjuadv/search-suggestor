@@ -8,32 +8,95 @@
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script>
         $(function () {
-            var availableTags = [
-                "ActionScript",
-                "AppleScript",
-                "Asp",
-                "BASIC",
-                "C",
-                "C++",
-                "Clojure",
-                "COBOL",
-                "ColdFusion",
-                "Erlang",
-                "Fortran",
-                "Groovy",
-                "Haskell",
-                "Java",
-                "JavaScript",
-                "Lisp",
-                "Perl",
-                "PHP",
-                "Python",
-                "Ruby",
-                "Scala",
-                "Scheme"
-            ];
-            $("#tags").autocomplete({
-                source: availableTags
+            $("#search").autocomplete({
+                source: function (request, response) {
+                    var marketList = "";
+                    if ($("#markets").val()) {
+                        
+                        $.each($("#markets").val().split(','), function (i, a) {
+                            marketList = marketList + "&market=" + a;
+                        });
+                    }
+                    $.ajax({
+                        url: "/api/Search/?text=" + request.term + marketList,
+                        dataType: "json",
+                        data: {
+                           
+                        },
+                        success: function (data) {
+                            var c = [];
+                            $.each(data, function (i, a) {
+                                a.label = a.suggestion;
+                                if (a.sourceType == 'mgmtComp') {
+                                    a.classname = 'text-danger';
+                                }
+                                else {
+                                    a.classname = 'text-success';
+                                }
+                                c.push(a);
+                            });
+                            response(c);
+                        },
+                        error: function (xhr, textStatus, errorThrown) {
+                            alert("error: " + errorThrown);
+                        }
+                    });
+                }
+            }).autocomplete("instance")._renderItem = function (ul, item) {
+                return $("<li class='" + item.classname + "'></li>")
+                    .data("item.autocomplete", item)
+                    .append("<b>" + item.label + "</b> <i class='text-dark'>[" + item.sourceType + " | " + item.source.market + "]</i>")
+                    .appendTo(ul);
+                };
+
+            $("#autocomp").autocomplete({
+                source: function (request, response) {
+                    var marketList = "";
+                    if ($("#markets").val()) {
+
+                        $.each($("#markets").val().split(','), function (i, a) {
+                            marketList = marketList + "&market=" + a;
+                        });
+                    }
+                    $.ajax({
+                        url: "/api/AutoComp/?text=" + request.term + marketList,
+                        dataType: "json",
+                        data: {
+
+                        },
+                        success: function (data) {
+                            var c = [];
+                            $.each(data, function (i, a) {
+                                a.label = a.suggestion;
+                                if (a.sourceType == 'mgmtComp') {
+                                    a.classname = 'text-danger';
+                                }
+                                else {
+                                    a.classname = 'text-success';
+                                }
+                                c.push(a);
+                            });
+                            response(c);
+                        },
+                        error: function (xhr, textStatus, errorThrown) {
+                            alert("error: " + errorThrown);
+                        }
+                    });
+                }
+            }).autocomplete("instance")._renderItem = function (ul, item) {
+                return $("<li class='" + item.classname + "'></li>")
+                    .data("item.autocomplete", item)
+                    .append("<b>" + item.label + "</b> <i class='text-dark'>[" + item.sourceType + " | " + item.source.market + "]</i>")
+                    .appendTo(ul);
+            };
+
+            $("#search").on('keyup', function () {
+                $("#autocomp").val($(this).val());
+                $('#autocomp').keydown();
+            });
+            $("#autocomp").on('keyup', function () {
+                $("#search").val($(this).val());
+                $('#search').keydown();
             });
         });
     </script>
@@ -42,26 +105,41 @@
 <body>
     <div class="jumbotron">
         <div class="container">
-            <h1>Hello, THis is Manjula Rnasinghe's assessment!</h1>
-            <p>This page demonstrate searching functionality I developed.</p>
+            <h1>Hello!</h1>
+            <p>This page demonstrate searching functionality.</p>
         </div>
     </div>
     <div class="container">
-
-
+        <div class="row">
+            <div class="col-12">
+                <form>
+                    <div class="form-group">                        
+                        <input type="text" class="form-control" id="markets" placeholder="Type markets here (comma separated)">
+                    </div>
+                    <br />
+                </form>
+            </div>
+        </div>
         <div class="row">
             <div class="col">
                 <div class="row">
-                    <div class="col">
+                    <div class="col-12">
                         <div class="ui-widget">
-                            <label for="tags">Tags: </label>
-                            <input id="tags">
+                            <label for="search">Search (Standard tokenizer): </label>
+                            <input id="search">
                         </div>
                     </div>
                 </div>
             </div>
             <div class="col">
-                sssssssssssss
+                <div class="row">
+                    <div class="col">
+                        <div class="ui-widget">
+                            <label for="autocomp">Autocomplete (Edge Ngram): </label>
+                            <input id="autocomp">
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

@@ -63,7 +63,7 @@ namespace SearchApi.Controllers
         }
         private IEnumerable<SearchSuggestionResult> GetSearchResults(string text, string[] markets, int limit)
         {
-            IEnumerable<SearchSuggestionResult> results = searchService.GetSearchResults(text, markets, size: limit, misspellingMaxAllowed: 1);
+            IEnumerable<SearchSuggestionResult> results = searchService.GetSearchResults(text, markets, size: limit, misspellingMaxAllowed: 2);
             return results;
         }
     }
